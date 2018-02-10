@@ -34,10 +34,10 @@ def combine_row(row):
 	return row if len(row) <= 1 else [row[0] + row[1]] + combine_row(row[2:]) + [0] if row[0] == row[1] else [row[0]] + combine_row(row[1:])
 
 def myprint(board):
-	list(map(lambda row: print(row), board))
+	return (list(map(lambda row: print(row), board)), board)[1]
 
 def myprint2(boards):
-	map(myprint, board)
+	list(map(lambda board: myprint(row), boards))
 
 #how do i add numbers wh
 def twentyfourtyeight(board = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]):
