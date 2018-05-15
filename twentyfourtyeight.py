@@ -16,7 +16,7 @@ from pprint import *
 
 #optimizations to make things that should be assigned to a "variable" __import__('random'), unrotated boards?, input_ind
 def zero_locs(board):
-	return list(filter(lambda x: board[x[0]][x[1]] == 0, list(zip(4*list(range(4)), list(sum(zip(*4*[list(range(4))]), ()))))))
+	return list(filter(lambda x: not board[x[0]][x[1]], list(zip(4*list(range(4)), list(sum(zip(*4*[list(range(4))]), ()))))))
 
 def random_zero(board):
 	return __import__('random').choice(zero_locs(board))
@@ -28,7 +28,7 @@ def rotate_board(board, count):
 	return rotate_board(list(map(list, zip(*board[::-1]))), count - 1) if count > 0 else board
 
 def shift_row(row):
-	return list(filter(lambda i: i != 0, row)) + list(filter(lambda i: i == 0, row))
+	return list(filter(lambda i: i, row)) + list(filter(lambda i: not i, row))
 
 def combine_row(row):
 	return row if len(row) <= 1 else [row[0] + row[1]] + combine_row(row[2:]) + [0] if row[0] == row[1] else [row[0]] + combine_row(row[1:])
@@ -67,11 +67,13 @@ def twentyfourtyeight(board = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]):
 
 #print(refill_board([[0, 0, 0, 0]]))
 #print(combine_row(shift_row([2,0,4,4])))
-board = [[2,0,4,4],[2,8,8,4],[2,0,64,4],[2,0,4,64]]
+board = [[2,0,4,4],[2,8,8,4],[2,0,64,4],[2048,0,4,64]]
 #print(rotate_board(board, 3))
 #twentyfourtyeight()
 #print(rotate_board(board, 1))
+
 myprint(board)
+
 # pprint(refill_board(board))
 #rotated_boards = [board, list(zip(*board[::-1])), list(zip(*list(zip(*board[::-1]))[::-1])), list(zip(*list(zip(*list(zip(*board[::-1]))[::-1]))[::-1]))]
 
@@ -82,3 +84,20 @@ myprint(board)
 
 
 #(lambda twentyfourtyeight, input_str: twentyfourtyeight(input_str))(lambda twentyfourtyeight, board: twentyfourtyeight(board) if board != [] else generate_board, raw_input())
+
+
+
+
+#adding GUI
+import tkinter as tk
+root = tk.Tk()
+# for i in range(4):
+# 	for j in range(4):
+# 		#tk.Label(root, text=str(board[i][j])).pack()
+# 		pass
+list(map(lambda i: list(map(lambda j: tk.Label(root, text=str(board[i][j]), relief=tk.RIDGE, height=4, width=5).grid(row=i, column=j), range(4))), range(4)))
+root.bind("<Key>", lambda event: print(event.char == "\uf701"))
+# tk.Label(root, text=str(board[0][1])).grid(row=r,column=0)
+# tk.Label(root, text=str(board[1][1])).grid(row=r,column=0)
+# tk.Label(root, text=str(board[1][0])).grid(row=r,column=0)
+tk.mainloop()
