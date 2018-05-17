@@ -22,7 +22,7 @@ def random_zero(board):
 	return __import__('random').choice(zero_locs(board))
 
 def refill_board(board):
-	return (lambda x: list(map(lambda j: list(map(lambda i: __import__('random').choice([2, 4]) if (j, i) == (x[0], x[1]) else board[j][i], range(4))), range(4))))(random_zero(board))
+	return (lambda x: list(map(lambda j: list(map(lambda i: __import__('random').choice(9*[2] + [4]) if (j, i) == (x[0], x[1]) else board[j][i], range(4))), range(4))))(random_zero(board))
 
 def rotate_board(board, count):
 	return rotate_board(list(map(list, zip(*board[::-1]))), count - 1) if count > 0 else board
@@ -39,22 +39,36 @@ def myprint(board):
 def myprint2(boards):
 	list(map(lambda board: myprint(row), boards))
 
-#how do i add numbers wh
-def twentyfourtyeight(board = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]):
+def key_func(event):
+	input_ind = {'\uf702':0, '\uf701':1, '\uf703':2, '\uf700':3}[event.char]
+	#root is also not defined
+	return twentyfourtyeight(refill_board(refill_board(unrotated_boards[input_ind])) if sum(map(lambda x: x.count(0), unrotated_boards[input_ind])) > 1 and __import__('random').choice([True, False]) else refill_board(unrotated_boards[input_ind])) if unrotated_boards[input_ind] != board else twentyfourtyeight(board)
+
+def draw(board, root):
+	return (list(map(lambda i: list(map(lambda j: tk.Label(root, text=str(board[i][j]) if board[i][j] else '', bg='wheat1' if board[i][j] else 'wheat3', relief=tk.RAISED if board[i][j] else tk.GROOVE, height=4, width=5, bd=3).grid(row=i, column=j), range(4))), range(4))) if root.winfo_children() == [] else list(map(lambda i: root.winfo_children()[i].config(text=str(board[int(i/4)][i%4]) if board[int(i/4)][i%4] else '', bg='wheat1' if board[int(i/4)][i%4] else 'wheat3', relief=tk.RAISED if board[int(i/4)][i%4] else tk.GROOVE), range(16))), board)[1]
+
+def twentyfourtyeight(root, board = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]):
 	if not any(map(any, board)):#good
 		board = refill_board(board)#good
-	myprint(board)
+	draw(board, root)
 	rotated_boards = list(map(lambda i: rotate_board(board, i), range(4)))#good
 	combined_boards = list(map(lambda board: list(map(lambda row: combine_row(shift_row(row)), board)), rotated_boards))#good
-	#myprint2(combined_boards)
 	unrotated_boards = list(map(lambda i: rotate_board(combined_boards[i], 4 - i), range(4)))#good
 	if unrotated_boards[1:] == unrotated_boards[:-1]:
 		print('gameover')
 		return
-	input_str = input()#__import__('random').choice(['a', 'w', 'd', 's'])#'a'#raw_input()
-	input_ind = {'a':0, 's':1, 'd':2, 'w':3}[input_str]
-	twentyfourtyeight(refill_board(refill_board(unrotated_boards[input_ind])) if sum(map(lambda x: x.count(0), unrotated_boards[input_ind])) > 1 and __import__('random').choice([True, False]) else refill_board(unrotated_boards[input_ind])) if unrotated_boards[input_ind] != board else twentyfourtyeight(board)
-#twentyfourtyeight()
+	else:
+		root.bind("<Key>", lambda event: twentyfourtyeight(root, refill_board(unrotated_boards[{'\uf702':0, '\uf701':1, '\uf703':2, '\uf700':3}[event.char]])) if unrotated_boards[{'\uf702':0, '\uf701':1, '\uf703':2, '\uf700':3}[event.char]] != board else twentyfourtyeight(root, board))
+	# input_str = input()
+	# input_ind = {'a':0, 's':1, 'd':2, 'w':3}[input_str]
+	# twentyfourtyeight(refill_board(refill_board(unrotated_boards[input_ind])) if sum(map(lambda x: x.count(0), unrotated_boards[input_ind])) > 1 and __import__('random').choice([True, False]) else refill_board(unrotated_boards[input_ind])) if unrotated_boards[input_ind] != board else twentyfourtyeight(board)
+
+import tkinter as tk
+root = tk.Tk()
+#draw([[2,0,4,4],[2,8,8,4],[2,0,64,4],[2048,0,4,64]], root)
+root.after(1, twentyfourtyeight, root)
+tk.mainloop()
+#twentyfourtyeight(root=root)
 
 
 #(lambda boards, input_ind: twentyfourtyeight(refill_board(refill_board(boards[input_ind])) if sum(map(lambda x: x.count(0), boards[input_ind])) > 1 and __import__('random').choice([True, False]) else refill_board(boards[input_ind])) if boards[input_ind] != board else twentyfourtyeight(board))(list(map(lambda i: rotate_board(list(map(lambda board: list(map(lambda row: combine_row(shift_row(row)), board)), list(map(lambda i: rotate_board(refill_board(board) if not any(map(any, board)) else board, i), range(4)))))[i], 4 - i), range(4))), {'a':0, 's':1, 'd':2, 'w':3}[input()])
@@ -72,7 +86,7 @@ board = [[2,0,4,4],[2,8,8,4],[2,0,64,4],[2048,0,4,64]]
 #twentyfourtyeight()
 #print(rotate_board(board, 1))
 
-myprint(board)
+#myprint(board)
 
 # pprint(refill_board(board))
 #rotated_boards = [board, list(zip(*board[::-1])), list(zip(*list(zip(*board[::-1]))[::-1])), list(zip(*list(zip(*list(zip(*board[::-1]))[::-1]))[::-1]))]
@@ -85,19 +99,23 @@ myprint(board)
 
 #(lambda twentyfourtyeight, input_str: twentyfourtyeight(input_str))(lambda twentyfourtyeight, board: twentyfourtyeight(board) if board != [] else generate_board, raw_input())
 
+#list(map(lambda widget: widget.destroy(), root.winfo_children()))
+#list(map(lambda i: list(map(lambda j: tk.Label(root, text=str(board[i][j]) if board[i][j] else '', bg='wheat1' if board[i][j] else 'wheat3', relief=tk.RIDGE, height=4, width=5).grid(row=i, column=j), range(4))), range(4))) if root.winfo_children() == [] else list(map(lambda widget: widget.config(text=str(board[i][j])), root.winfo_children()))
 
-
+#root.bind("<Key>", funky)
+# for widget in frame.winfo_children():
+#     widget.destroy()
 
 #adding GUI
-import tkinter as tk
-root = tk.Tk()
-# for i in range(4):
-# 	for j in range(4):
-# 		#tk.Label(root, text=str(board[i][j])).pack()
-# 		pass
-list(map(lambda i: list(map(lambda j: tk.Label(root, text=str(board[i][j]), relief=tk.RIDGE, height=4, width=5).grid(row=i, column=j), range(4))), range(4)))
-root.bind("<Key>", lambda event: print(event.char == "\uf701"))
-# tk.Label(root, text=str(board[0][1])).grid(row=r,column=0)
-# tk.Label(root, text=str(board[1][1])).grid(row=r,column=0)
-# tk.Label(root, text=str(board[1][0])).grid(row=r,column=0)
-tk.mainloop()
+# import tkinter as tk
+# def a(event):
+# 	print("a")
+# 	b(root)
+
+# def b(root):
+# 	print("b")
+# 	root.bind("<Key>", a)
+
+# root = tk.Tk()
+# b(root)
+# tk.mainloop()
